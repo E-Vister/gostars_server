@@ -13,7 +13,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle(`GoStars API`)
-    .setDescription(`Server for 'gostars'(https://github.com/E-Vister/gostars)`)
+    .setDescription(
+      `Server for 'gostars'(gitlab.12devs.com/training/2023_trainee/bausiuk_gostars_frontend)`,
+    )
     .setVersion(`1.0.0`)
     .build();
 

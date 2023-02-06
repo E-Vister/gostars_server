@@ -7,6 +7,8 @@ import { Match } from './matches/matches.model';
 import { TeamsModule } from './teams/teams.module';
 import { Team } from './teams/teams.model';
 import { MatchTeams } from './teams/match-teams.model';
+import { EventsModule } from './events/events.module';
+import { Event } from './events/events.model';
 
 @Module({
   imports: [
@@ -22,10 +24,11 @@ import { MatchTeams } from './teams/match-teams.model';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [Match, Team, MatchTeams],
+      models: [Match, Team, MatchTeams, Event],
       autoLoadModels: true,
     }),
     TeamsModule,
+    EventsModule,
   ],
   controllers: [],
   providers: [],

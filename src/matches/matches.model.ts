@@ -1,13 +1,15 @@
 import {
-  BelongsTo, BelongsToMany,
+  BelongsTo,
+  BelongsToMany,
   Column,
   DataType,
   ForeignKey,
   Model,
-  Table
-} from "sequelize-typescript";
+  Table,
+} from 'sequelize-typescript';
 import { Team } from '../teams/teams.model';
-import { MatchTeams } from "../teams/match-teams.model";
+import { Event } from '../events/events.model';
+import { MatchTeams } from '../teams/match-teams.model';
 
 interface MatchCreationAttrs {
   time: string;
@@ -35,6 +37,12 @@ export class Match extends Model<Match, MatchCreationAttrs> {
 
   @BelongsToMany(() => Team, () => MatchTeams)
   teams: Team[];
+
+  @ForeignKey(() => Event)
+  eventId: number;
+
+  @BelongsTo(() => Event)
+  event: Event;
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),

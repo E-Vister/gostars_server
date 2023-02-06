@@ -1,21 +1,14 @@
-import {
-  BelongsToMany,
-  Column,
-  DataType,
-  Model,
-  Table,
-} from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { Match } from '../matches/matches.model';
-import { MatchTeams } from './match-teams.model';
 
-export interface TeamCreationAttrs {
+export interface EventCreationAttrs {
   name: string;
 
   logo: string;
 }
 
-@Table({ tableName: 'teams' })
-export class Team extends Model<Team, TeamCreationAttrs> {
+@Table({ tableName: 'events' })
+export class Event extends Model<Event, EventCreationAttrs> {
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
@@ -36,6 +29,6 @@ export class Team extends Model<Team, TeamCreationAttrs> {
   })
   logo: string;
 
-  @BelongsToMany(() => Match, () => MatchTeams)
+  @HasMany(() => Match)
   matches: Match[];
 }

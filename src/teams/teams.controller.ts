@@ -8,7 +8,7 @@ import { CreateTeamDto } from './dto/create-team.dto';
 export class TeamsController {
   constructor(private readonly teamsService: TeamsService) {}
 
-  @ApiOperation({ summary: 'Get matches list' })
+  @ApiOperation({ summary: 'Get team by name' })
   @ApiResponse({ status: 200, type: [Team] })
   @Get(':name')
   getByName(@Param('name') name: string) {
