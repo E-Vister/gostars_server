@@ -13,6 +13,16 @@ export class TeamsService {
     });
   }
 
+  async cacheTeam(dto: CreateTeamDto) {
+    let team = await this.getTeamByName(dto.name);
+
+    if (team === null) {
+      team = await this.createTeam(dto);
+    }
+
+    return team;
+  }
+
   async createTeam(dto: CreateTeamDto) {
     return await this.teamsRepository.create(dto);
   }

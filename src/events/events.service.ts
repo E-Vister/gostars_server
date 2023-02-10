@@ -17,6 +17,16 @@ export class EventsService {
     });
   }
 
+  async cacheEvent(dto: CreateEventDto) {
+    let event = await this.getEventByName(dto.name);
+
+    if (event === null) {
+      event = await this.createEvent(dto);
+    }
+
+    return event;
+  }
+
   async createEvent(dto: CreateEventDto) {
     return await this.eventsRepository.create(dto);
   }

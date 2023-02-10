@@ -9,6 +9,10 @@ import { Team } from './teams/teams.model';
 import { MatchTeams } from './teams/match-teams.model';
 import { EventsModule } from './events/events.module';
 import { Event } from './events/events.model';
+import { MapsModule } from './maps/maps.module';
+import { ScoresModule } from './scores/scores.module';
+import { Score } from './scores/scores.model';
+import { Map } from './maps/maps.model';
 
 @Module({
   imports: [
@@ -24,11 +28,13 @@ import { Event } from './events/events.model';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [Match, Team, MatchTeams, Event],
+      models: [Match, Team, MatchTeams, Event, Score, Map],
       autoLoadModels: true,
     }),
     TeamsModule,
     EventsModule,
+    MapsModule,
+    ScoresModule,
   ],
   controllers: [],
   providers: [],

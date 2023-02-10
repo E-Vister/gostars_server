@@ -10,6 +10,7 @@ import {
 import { Team } from '../teams/teams.model';
 import { Event } from '../events/events.model';
 import { MatchTeams } from '../teams/match-teams.model';
+import { Score } from '../scores/scores.model';
 
 interface MatchCreationAttrs {
   time: string;
@@ -43,6 +44,12 @@ export class Match extends Model<Match, MatchCreationAttrs> {
 
   @BelongsTo(() => Event)
   event: Event;
+
+  @ForeignKey(() => Score)
+  scoreId: number;
+
+  @BelongsTo(() => Score)
+  score: Score;
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),
