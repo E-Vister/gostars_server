@@ -1,7 +1,7 @@
 export class CreateMapDto {
   team1: ITeamScore;
   team2: ITeamScore;
-  map:
+  name:
     | 'Vertigo'
     | 'Overpass'
     | 'Nuke'

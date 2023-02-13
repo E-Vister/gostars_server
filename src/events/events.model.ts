@@ -5,6 +5,8 @@ export interface EventCreationAttrs {
   name: string;
 
   logo: string;
+
+  live: string;
 }
 
 @Table({ tableName: 'events' })
@@ -28,6 +30,12 @@ export class Event extends Model<Event, EventCreationAttrs> {
     allowNull: false,
   })
   logo: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  live: string;
 
   @HasMany(() => Match)
   matches: Match[];

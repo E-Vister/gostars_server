@@ -1,14 +1,11 @@
 import {
-  BelongsTo,
   Column,
   DataType,
-  ForeignKey,
   HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { Map } from '../maps/maps.model';
-import { Match } from '../matches/matches.model';
 
 export interface ScoreCreationAttrs {
   team1Score: number;

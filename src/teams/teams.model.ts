@@ -12,6 +12,7 @@ export interface TeamCreationAttrs {
   name: string;
 
   logo: string;
+  country: string;
 }
 
 @Table({ tableName: 'teams' })
@@ -35,6 +36,12 @@ export class Team extends Model<Team, TeamCreationAttrs> {
     allowNull: false,
   })
   logo: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  country: string;
 
   @BelongsToMany(() => Match, () => MatchTeams)
   matches: Match[];

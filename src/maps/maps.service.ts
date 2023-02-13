@@ -8,6 +8,8 @@ export class MapsService {
   constructor(@InjectModel(Map) private mapsRepository: typeof Map) {}
 
   async createMaps(dto: CreateMapDto[], scoreId) {
+    if (!dto) return;
+
     const maps = dto.map((map) => {
       return {
         team1MapScore: map.team1.totalScore,
@@ -16,7 +18,7 @@ export class MapsService {
         team2MapScore: map.team2.totalScore,
         team2CTScore: map.team2.ctSideScore,
         team2TScore: map.team2.tSideScore,
-        map: map.map,
+        name: map.name,
         pickedBy: map.pickedBy,
         won: map.won,
       };

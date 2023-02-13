@@ -3,7 +3,7 @@ import { CreateEventDto } from '../../events/dto/create-event.dto';
 import { CreateScoreDto } from '../../scores/dto/create-score.dto';
 
 export class CreateMatchDto {
-  readonly time: string;
+  readonly date: Date;
 
   readonly team1: CreateTeamDto;
 

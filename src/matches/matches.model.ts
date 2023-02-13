@@ -13,7 +13,7 @@ import { MatchTeams } from '../teams/match-teams.model';
 import { Score } from '../scores/scores.model';
 
 interface MatchCreationAttrs {
-  time: string;
+  date: Date;
   picks: string[];
   matchType: 'LAN' | 'Online';
   meta: 'bo1' | 'bo2' | 'bo3' | 'bo5';
@@ -31,10 +31,10 @@ export class Match extends Model<Match, MatchCreationAttrs> {
   id: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.DATE,
     allowNull: false,
   })
-  time: string;
+  date: Date;
 
   @BelongsToMany(() => Team, () => MatchTeams)
   teams: Team[];

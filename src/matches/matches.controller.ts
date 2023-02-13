@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { MatchesService } from './matches.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Match } from './matches.model';
@@ -13,6 +13,11 @@ export class MatchesController {
   @Get()
   getAll() {
     return this.matchesService.getAll();
+  }
+
+  @Get(':matchId')
+  getMatchById(@Param('matchId') matchId: string) {
+    return this.matchesService.getMatchById(matchId);
   }
 
   @Post()

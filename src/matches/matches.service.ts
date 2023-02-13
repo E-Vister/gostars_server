@@ -21,10 +21,18 @@ export class MatchesService {
     });
 
     const response = matches.map(async (match) => {
-      const { id, time, picks, matchType, meta, status } = match;
-      const { name: team1Name, logo: team1Logo } = match.teams[0];
-      const { name: team2Name, logo: team2Logo } = match.teams[1];
-      const { name: eventName, logo: eventLogo } = match.event;
+      const { id, date, picks, matchType, meta, status } = match;
+      const {
+        name: team1Name,
+        logo: team1Logo,
+        country: team1Country,
+      } = match.teams[0];
+      const {
+        name: team2Name,
+        logo: team2Logo,
+        country: team2Country,
+      } = match.teams[1];
+      const { name: eventName, logo: eventLogo, live } = match.event;
 
       const score = await this.scoreService.getScoreById(match.scoreId);
       const { team1Score, team2Score } = score;
@@ -41,7 +49,7 @@ export class MatchesService {
             tSideScore: item.team2TScore,
             ctSideScore: item.team2CTScore,
           },
-          map: item.map,
+          name: item.name,
           pickedBy: item.pickedBy,
           won: item.won,
         };
@@ -49,14 +57,16 @@ export class MatchesService {
 
       return {
         id,
-        time,
+        date,
         team1: {
           name: team1Name,
           logo: team1Logo,
+          country: team1Country,
         },
         team2: {
           name: team2Name,
           logo: team2Logo,
+          country: team2Country,
         },
         score: {
           main: {
@@ -70,6 +80,7 @@ export class MatchesService {
         matchEvent: {
           name: eventName,
           logo: eventLogo,
+          live,
         },
         meta,
         status,
@@ -77,6 +88,82 @@ export class MatchesService {
     });
 
     return await Promise.all(response);
+  }
+
+  async getMatchById(matchId: string) {
+    const match = await this.matchesRepository.findOne({
+      where: { id: matchId },
+      include: { all: true },
+    });
+
+    if (match === null) return undefined;
+
+    const { id, date, picks, matchType, meta, status } = match;
+
+    const {
+      name: team1Name,
+      logo: team1Logo,
+      country: team1Country,
+    } = match.teams[0];
+    const {
+      name: team2Name,
+      logo: team2Logo,
+      country: team2Country,
+    } = match.teams[1];
+
+    const { name: eventName, logo: eventLogo, live } = match.event;
+
+    const score = await this.scoreService.getScoreById(match.scoreId);
+    const { team1Score, team2Score } = score;
+
+    const maps = score.maps.map((item) => {
+      return {
+        team1: {
+          totalScore: item.team1MapScore,
+          tSideScore: item.team1TScore,
+          ctSideScore: item.team1CTScore,
+        },
+        team2: {
+          totalScore: item.team2MapScore,
+          tSideScore: item.team2TScore,
+          ctSideScore: item.team2CTScore,
+        },
+        name: item.name,
+        pickedBy: item.pickedBy,
+        won: item.won,
+      };
+    });
+
+    return {
+      id,
+      date,
+      team1: {
+        name: team1Name,
+        logo: team1Logo,
+        country: team1Country,
+      },
+      team2: {
+        name: team2Name,
+        logo: team2Logo,
+        country: team2Country,
+      },
+      score: {
+        main: {
+          team1: team1Score,
+          team2: team2Score,
+        },
+        maps,
+      },
+      picks,
+      matchType,
+      matchEvent: {
+        name: eventName,
+        logo: eventLogo,
+        live,
+      },
+      meta,
+      status,
+    };
   }
 
   async createMatch(dto: CreateMatchDto) {

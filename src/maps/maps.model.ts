@@ -15,7 +15,7 @@ export interface MapCreationAttrs {
   team2MapScore: number;
   team2CTScore: number;
   team2TScore: number;
-  map:
+  name:
     | 'Vertigo'
     | 'Overpass'
     | 'Nuke'
@@ -77,7 +77,7 @@ export class Map extends Model<Map, MapCreationAttrs> {
     type: DataType.STRING,
     allowNull: false,
   })
-  map: string;
+  name: string;
 
   @Column({
     type: DataType.STRING,
