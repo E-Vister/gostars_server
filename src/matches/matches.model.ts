@@ -13,11 +13,14 @@ import { MatchTeams } from '../teams/match-teams.model';
 import { Score } from '../scores/scores.model';
 
 interface MatchCreationAttrs {
+  id: number;
   date: Date;
+  team1Name: string;
+  team2Name: string;
   picks: string[];
-  matchType: 'LAN' | 'Online';
-  meta: 'bo1' | 'bo2' | 'bo3' | 'bo5';
-  status: 'upcoming' | 'ended';
+  matchType: string;
+  meta: string;
+  status: string;
 }
 
 @Table({ tableName: 'matches' })
@@ -25,7 +28,6 @@ export class Match extends Model<Match, MatchCreationAttrs> {
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
-    autoIncrement: true,
     unique: true,
   })
   id: number;
@@ -50,6 +52,18 @@ export class Match extends Model<Match, MatchCreationAttrs> {
 
   @BelongsTo(() => Score)
   score: Score;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  team1Name: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  team2Name: string;
 
   @Column({
     type: DataType.ARRAY(DataType.STRING),

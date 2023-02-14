@@ -3,6 +3,7 @@ import { CreateEventDto } from '../../events/dto/create-event.dto';
 import { CreateScoreDto } from '../../scores/dto/create-score.dto';
 
 export class CreateMatchDto {
+  readonly id: number;
   readonly date: Date;
 
   readonly team1: CreateTeamDto;
@@ -15,9 +16,9 @@ export class CreateMatchDto {
 
   readonly matchEvent: CreateEventDto;
 
-  readonly matchType: 'LAN' | 'Online';
+  readonly matchType: string;
 
-  readonly meta: 'bo1' | 'bo2' | 'bo3' | 'bo5';
+  readonly meta: string;
 
-  readonly status: 'upcoming' | 'ended';
+  readonly status: string;
 }

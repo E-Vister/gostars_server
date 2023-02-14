@@ -15,16 +15,9 @@ export interface MapCreationAttrs {
   team2MapScore: number;
   team2CTScore: number;
   team2TScore: number;
-  name:
-    | 'Vertigo'
-    | 'Overpass'
-    | 'Nuke'
-    | 'Mirage'
-    | 'Ancient'
-    | 'Inferno'
-    | 'Anubis';
+  name: string;
   pickedBy: 'team1' | 'team2' | 'decider';
-  won: 'team1' | 'team2' | 'draw';
+  number: number;
 }
 
 @Table({ tableName: 'maps' })
@@ -86,10 +79,10 @@ export class Map extends Model<Map, MapCreationAttrs> {
   pickedBy: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: false,
   })
-  won: string;
+  number: number;
 
   @ForeignKey(() => Score)
   scoreId: number;

@@ -1,16 +1,9 @@
 export class CreateMapDto {
   team1: ITeamScore;
   team2: ITeamScore;
-  name:
-    | 'Vertigo'
-    | 'Overpass'
-    | 'Nuke'
-    | 'Mirage'
-    | 'Ancient'
-    | 'Inferno'
-    | 'Anubis';
+  name: string;
   pickedBy: 'team1' | 'team2' | 'decider';
-  won: 'team1' | 'team2' | 'draw';
+  number: number;
 }
 
 type ITeamScore = {

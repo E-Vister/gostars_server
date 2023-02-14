@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Match } from './matches.model';
@@ -23,5 +23,10 @@ export class MatchesController {
   @Post()
   create(@Body() matchDto: CreateMatchDto) {
     return this.matchesService.createMatch(matchDto);
+  }
+
+  @Delete(':matchId')
+  removeMatchById(@Param('matchId') matchId: string) {
+    return this.matchesService.removeMatchById(matchId);
   }
 }

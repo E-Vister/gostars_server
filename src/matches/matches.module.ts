@@ -10,11 +10,13 @@ import { EventsModule } from '../events/events.module';
 import { ScoresModule } from '../scores/scores.module';
 import { Score } from '../scores/scores.model';
 import { Map } from '../maps/maps.model';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   controllers: [MatchesController],
   providers: [MatchesService],
   imports: [
+    HttpModule,
     SequelizeModule.forFeature([Match, Team, MatchTeams, Score, Map]),
     TeamsModule,
     EventsModule,

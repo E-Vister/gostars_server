@@ -11,8 +11,12 @@ export class ScoresService {
     private mapsService: MapsService,
   ) {}
 
-  async cacheScore({ main, maps }: CreateScoreDto) {
-    const scoreDto = { team1Score: main.team1, team2Score: main.team2 };
+  async cacheScore({ main, maps, firstPick }: CreateScoreDto) {
+    const scoreDto = {
+      team1Score: main.team1,
+      team2Score: main.team2,
+      firstPick,
+    };
     const score = await this.scoresRepository.create(scoreDto);
     await this.mapsService.createMaps(maps, score.id);
 
@@ -24,5 +28,17 @@ export class ScoresService {
       where: { id },
       include: { all: true },
     });
+  }
+
+  async removeScoreById(scoreId: string) {
+    if (scoreId) {
+      await this.mapsService.removeScoreMaps(scoreId);
+    }
+
+    await this.scoresRepository.destroy({
+      where: { id: scoreId },
+    });
+
+    return { code: 200 };
   }
 }

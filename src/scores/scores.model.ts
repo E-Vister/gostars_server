@@ -1,15 +1,10 @@
-import {
-  Column,
-  DataType,
-  HasMany,
-  Model,
-  Table,
-} from 'sequelize-typescript';
+import { Column, DataType, HasMany, Model, Table } from 'sequelize-typescript';
 import { Map } from '../maps/maps.model';
 
 export interface ScoreCreationAttrs {
   team1Score: number;
   team2Score: number;
+  firstPick: string;
 }
 
 @Table({ tableName: 'scores' })
@@ -33,6 +28,12 @@ export class Score extends Model<Score, ScoreCreationAttrs> {
     allowNull: false,
   })
   team2Score: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  firstPick: string;
 
   @HasMany(() => Map)
   maps: Map[];

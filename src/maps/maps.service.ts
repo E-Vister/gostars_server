@@ -20,7 +20,7 @@ export class MapsService {
         team2TScore: map.team2.tSideScore,
         name: map.name,
         pickedBy: map.pickedBy,
-        won: map.won,
+        number: map.number,
       };
     });
 
@@ -33,5 +33,13 @@ export class MapsService {
     });
 
     return createdMaps;
+  }
+
+  async removeScoreMaps(scoreId: string) {
+    await this.mapsRepository.destroy({
+      where: { scoreId },
+    });
+
+    return { code: 200 };
   }
 }
