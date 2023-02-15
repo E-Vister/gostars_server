@@ -11,6 +11,7 @@ import { ScoresModule } from '../scores/scores.module';
 import { Score } from '../scores/scores.model';
 import { Map } from '../maps/maps.model';
 import { HttpModule } from '@nestjs/axios';
+import { MapsModule } from '../maps/maps.module';
 
 @Module({
   controllers: [MatchesController],
@@ -21,6 +22,7 @@ import { HttpModule } from '@nestjs/axios';
     TeamsModule,
     EventsModule,
     ScoresModule,
+    MapsModule,
   ],
 })
 export class MatchesModule {}

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query } from "@nestjs/common";
 import { MatchesService } from './matches.service';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Match } from './matches.model';
@@ -13,6 +13,16 @@ export class MatchesController {
   @Get()
   getAll() {
     return this.matchesService.getAll();
+  }
+
+  @Get('/results')
+  getEndedMatches(@Query('offset') offset: number) {
+    return this.matchesService.getEndedMatches(offset || 0);
+  }
+
+  @Get('/upcoming')
+  getUpcomingMatches() {
+    return this.matchesService.getUpcomingMatches();
   }
 
   @Get(':matchId')

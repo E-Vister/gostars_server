@@ -7,6 +7,7 @@ import { EventsService } from '../events/events.service';
 import { ScoresService } from '../scores/scores.service';
 import HLTV from 'hltv-api19028309';
 import { HttpService } from '@nestjs/axios';
+import { MapsService } from '../maps/maps.service';
 
 @Injectable()
 export class MatchesService {
@@ -15,6 +16,7 @@ export class MatchesService {
     private readonly httpService: HttpService,
     private teamsService: TeamsService,
     private eventsService: EventsService,
+    private mapsService: MapsService,
     private scoreService: ScoresService,
   ) {}
 
@@ -24,72 +26,7 @@ export class MatchesService {
     });
 
     const response = matches.map(async (match) => {
-      const { id, date, picks, matchType, meta, status } = match;
-      const {
-        name: team1Name,
-        logo: team1Logo,
-        country: team1Country,
-      } = match.teams[0];
-      const {
-        name: team2Name,
-        logo: team2Logo,
-        country: team2Country,
-      } = match.teams[1];
-      const { name: eventName, logo: eventLogo, live } = match.event;
-
-      const score = await this.scoreService.getScoreById(match.scoreId);
-      const { team1Score, team2Score } = score;
-
-      const maps = score.maps
-        .map((item) => {
-          return {
-            team1: {
-              totalScore: item.team1MapScore,
-              tSideScore: item.team1TScore,
-              ctSideScore: item.team1CTScore,
-            },
-            team2: {
-              totalScore: item.team2MapScore,
-              tSideScore: item.team2TScore,
-              ctSideScore: item.team2CTScore,
-            },
-            name: item.name,
-            pickedBy: item.pickedBy,
-            number: item.number,
-          };
-        })
-        .sort((a, b) => a.number - b.number);
-
-      return {
-        id,
-        date,
-        team1: {
-          name: team1Name,
-          logo: team1Logo,
-          country: team1Country,
-        },
-        team2: {
-          name: team2Name,
-          logo: team2Logo,
-          country: team2Country,
-        },
-        score: {
-          main: {
-            team1: team1Score,
-            team2: team2Score,
-          },
-          maps,
-        },
-        picks,
-        matchType,
-        matchEvent: {
-          name: eventName,
-          logo: eventLogo,
-          live,
-        },
-        meta,
-        status,
-      };
+      return await this.matchResponse(match);
     });
 
     return await Promise.all(response);
@@ -148,6 +85,7 @@ export class MatchesService {
           firstPick: parsedMatch.score.firstPick,
         },
         matchEvent: {
+          id: +parsedMatch.event.id,
           name: parsedMatch.event.name,
           logo:
             parsedMatch.event.logo ||
@@ -168,72 +106,7 @@ export class MatchesService {
       });
     }
 
-    const { id, date, picks, matchType, meta, status, team1Name, team2Name } =
-      match;
-
-    const { logo: team1Logo, country: team1Country } = match.teams.find(
-      (team) => team.name === team1Name,
-    );
-    const { logo: team2Logo, country: team2Country } = match.teams.find(
-      (team) => team.name === team2Name,
-    );
-
-    const { name: eventName, logo: eventLogo, live } = match.event;
-
-    const score = await this.scoreService.getScoreById(match.scoreId);
-    const { team1Score, team2Score, firstPick } = score;
-
-    const maps = score.maps
-      .map((item) => {
-        return {
-          team1: {
-            totalScore: item.team1MapScore,
-            tSideScore: item.team1TScore,
-            ctSideScore: item.team1CTScore,
-          },
-          team2: {
-            totalScore: item.team2MapScore,
-            tSideScore: item.team2TScore,
-            ctSideScore: item.team2CTScore,
-          },
-          name: item.name,
-          pickedBy: item.pickedBy,
-          number: item.number,
-        };
-      })
-      .sort((a, b) => a.number - b.number);
-
-    return {
-      id,
-      date,
-      team1: {
-        name: team1Name,
-        logo: team1Logo,
-        country: team1Country,
-      },
-      team2: {
-        name: team2Name,
-        logo: team2Logo,
-        country: team2Country,
-      },
-      score: {
-        main: {
-          team1: team1Score,
-          team2: team2Score,
-        },
-        maps,
-        firstPick,
-      },
-      picks,
-      matchType,
-      matchEvent: {
-        name: eventName,
-        logo: eventLogo,
-        live,
-      },
-      meta,
-      status,
-    };
+    return await this.matchResponse(match);
   }
 
   async createMatch(dto: CreateMatchDto) {
@@ -280,5 +153,184 @@ export class MatchesService {
     });
 
     return { code: 200 };
+  }
+
+  async getEndedMatches(offset: number) {
+    const results = await HLTV.getResults(offset);
+
+    const matchesId = results.map((result) => result.matchId);
+
+    const dbMatchesId = await this.matchesRepository
+      .findAll({
+        attributes: ['id'],
+      })
+      .then((res) => res.map((match) => match.id));
+
+    const responseResults = [];
+
+    for (const matchId of matchesId) {
+      let result, dbResult;
+
+      if (dbMatchesId.includes(matchId)) {
+        dbResult = await this.matchesRepository.findOne({
+          where: { id: matchId },
+          include: { all: true },
+        });
+      }
+
+      if (dbResult && dbResult.status === 'ended') {
+        const { date, team1, team2, matchEvent, matchType, score, id, meta } =
+          await this.matchResponse(dbResult);
+
+        responseResults.push({
+          date,
+          team1,
+          team2,
+          matchEvent,
+          matchType,
+          score,
+          meta,
+          id,
+        });
+      } else {
+        await this.removeMatchById(matchId.toString());
+        const matchIndex = matchesId.indexOf(matchId);
+        result = results[matchIndex];
+
+        responseResults.push({
+          date: result.time,
+          team1: {
+            name: result.team1.name,
+            logo: result.team1.logo,
+          },
+          team2: {
+            name: result.team2.name,
+            logo: result.team2.logo,
+          },
+          matchEvent: result.event,
+          matchType: '',
+          score: {
+            main: {
+              team1: result.team1.result,
+              team2: result.team2.result,
+            },
+            maps: [],
+          },
+          meta: result.meta,
+          id: result.matchId,
+        });
+      }
+    }
+
+    return responseResults;
+  }
+
+  async getUpcomingMatches() {
+    const matches = await HLTV.getMatches();
+
+    const matchesId = matches.map((match) => match.id);
+    const dbMatchesId = await this.matchesRepository
+      .findAll({
+        attributes: ['id'],
+      })
+      .then((res) => res.map((match) => match.id));
+
+    const responseUpcoming = [];
+
+    for (const matchId of matchesId) {
+      let match;
+
+      if (dbMatchesId.includes(matchId)) {
+        const dbMatch = await this.matchesRepository.findOne({
+          where: { id: matchId },
+          include: { all: true },
+        });
+
+        const { date, team1, team2, matchEvent, matchType, id, meta } =
+          await this.matchResponse(dbMatch);
+
+        responseUpcoming.push({
+          date,
+          team1,
+          team2,
+          matchEvent,
+          matchType,
+          meta,
+          id,
+        });
+      } else {
+        const matchIndex = matchesId.indexOf(matchId);
+        match = matches[matchIndex];
+
+        responseUpcoming.push({
+          date: match.time,
+          team1: {
+            name: match.team1.name,
+            logo: match.team1.logo,
+          },
+          team2: {
+            name: match.team2.name,
+            logo: match.team2.logo,
+          },
+          matchEvent: match.event,
+          matchType: '',
+          meta: match.maps,
+          id: match.id,
+        });
+      }
+    }
+
+    return responseUpcoming;
+  }
+
+  async matchResponse(match) {
+    const { id, date, picks, matchType, meta, status, team1Name, team2Name } =
+      match;
+
+    const { logo: team1Logo, country: team1Country } = match.teams.find(
+      (team) => team.name === team1Name,
+    );
+    const { logo: team2Logo, country: team2Country } = match.teams.find(
+      (team) => team.name === team2Name,
+    );
+
+    const { name: eventName, logo: eventLogo, live } = match.event;
+
+    const score = await this.scoreService.getScoreById(match.scoreId);
+    const { team1Score, team2Score, firstPick } = score;
+
+    const maps = await this.mapsService.responseMaps(score.maps);
+
+    return {
+      id,
+      date,
+      team1: {
+        name: team1Name,
+        logo: team1Logo,
+        country: team1Country,
+      },
+      team2: {
+        name: team2Name,
+        logo: team2Logo,
+        country: team2Country,
+      },
+      score: {
+        main: {
+          team1: team1Score,
+          team2: team2Score,
+        },
+        maps,
+        firstPick,
+      },
+      picks,
+      matchType,
+      matchEvent: {
+        name: eventName,
+        logo: eventLogo,
+        live,
+      },
+      meta,
+      status,
+    };
   }
 }

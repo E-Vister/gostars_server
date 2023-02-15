@@ -7,6 +7,8 @@ export interface EventCreationAttrs {
   logo: string;
 
   live: string;
+
+  id: number
 }
 
 @Table({ tableName: 'events' })
@@ -14,7 +16,6 @@ export class Event extends Model<Event, EventCreationAttrs> {
   @Column({
     type: DataType.INTEGER,
     primaryKey: true,
-    autoIncrement: true,
     unique: true,
   })
   id: number;

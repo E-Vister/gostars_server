@@ -42,4 +42,26 @@ export class MapsService {
 
     return { code: 200 };
   }
+
+  async responseMaps(maps: Map[]) {
+    return maps
+      .map((item) => {
+        return {
+          team1: {
+            totalScore: item.team1MapScore,
+            tSideScore: item.team1TScore,
+            ctSideScore: item.team1CTScore,
+          },
+          team2: {
+            totalScore: item.team2MapScore,
+            tSideScore: item.team2TScore,
+            ctSideScore: item.team2CTScore,
+          },
+          name: item.name,
+          pickedBy: item.pickedBy,
+          number: item.number,
+        };
+      })
+      .sort((a, b) => a.number - b.number);
+  }
 }

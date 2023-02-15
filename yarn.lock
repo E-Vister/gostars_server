@@ -2816,10 +2816,10 @@ hexoid@^1.0.0:
   resolved "https://registry.yarnpkg.com/hexoid/-/hexoid-1.0.0.tgz#ad10c6573fb907de23d9ec63a711267d9dc9bc18"
   integrity sha512-QFLV0taWQOZtvIRIAdBChesmogZrtuXvVWsFHZTk2SU+anspqZ2vMnoLg7IE1+Uk16N19APic1BuF8bC8c2m5g==
 
-hltv-api19028309@^3.0.12:
-  version "3.0.12"
-  resolved "https://registry.yarnpkg.com/hltv-api19028309/-/hltv-api19028309-3.0.12.tgz#8a3e60b99ad094052e458d3941c44360c64c3120"
-  integrity sha512-NKEhX2nphCT2cSzUGz6uNXuOMvqP6PaK4ihua2nCIncdLF/xYghojIM9vfzec7BXntZzWtq+PAd59sSRUbntrg==
+hltv-api19028309@^3.0.16:
+  version "3.0.16"
+  resolved "https://registry.yarnpkg.com/hltv-api19028309/-/hltv-api19028309-3.0.16.tgz#4cf734fbf9970622c582c9cf4821efb7d40ff51c"
+  integrity sha512-DdYAAjVzS/0Ib6OR41gfbwga75QiBfYquCxR1h4TzDFeuc1CpSkkGCer/9ipI3t49Ig+OsJ6vevMgjLOU2VbIw==
   dependencies:
     cheerio "^1.0.0-rc.3"
     node-fetch "^2.6.0"

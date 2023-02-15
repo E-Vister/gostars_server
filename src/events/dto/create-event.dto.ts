@@ -2,5 +2,7 @@ export class CreateEventDto {
   readonly name: string;
 
   readonly logo: string;
-  live: string;
+  readonly live: string;
+
+  readonly id: number;
 }
