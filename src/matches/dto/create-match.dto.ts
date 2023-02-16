@@ -21,4 +21,5 @@ export class CreateMatchDto {
   readonly meta: string;
 
   readonly status: string;
+  readonly stream: string;
 }

@@ -21,6 +21,8 @@ interface MatchCreationAttrs {
   matchType: string;
   meta: string;
   status: string;
+
+  stream: string;
 }
 
 @Table({ tableName: 'matches' })
@@ -88,4 +90,10 @@ export class Match extends Model<Match, MatchCreationAttrs> {
     allowNull: false,
   })
   status: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  stream: string;
 }

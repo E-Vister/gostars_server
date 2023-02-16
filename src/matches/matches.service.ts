@@ -95,6 +95,7 @@ export class MatchesService {
         status: parsedMatch.matchStatus,
         matchType: parsedMatch.matchType,
         picks: parsedMatch.picks,
+        stream: parsedMatch.stream,
       };
 
       await this.createMatch(dto);
@@ -283,8 +284,17 @@ export class MatchesService {
   }
 
   async matchResponse(match) {
-    const { id, date, picks, matchType, meta, status, team1Name, team2Name } =
-      match;
+    const {
+      id,
+      date,
+      picks,
+      matchType,
+      meta,
+      status,
+      team1Name,
+      team2Name,
+      stream,
+    } = match;
 
     const { logo: team1Logo, country: team1Country } = match.teams.find(
       (team) => team.name === team1Name,
@@ -330,6 +340,7 @@ export class MatchesService {
       },
       meta,
       status,
+      stream,
     };
   }
 }
