@@ -17,9 +17,9 @@ export class EventsController {
 
   @ApiOperation({ summary: 'Get team by name' })
   @ApiResponse({ status: 200, type: [Event] })
-  @Get(':name')
-  getByName(@Param('name') name: string) {
-    return this.eventsService.getEventByName(name);
+  @Get(':id')
+  getEventById(@Param('id') id: string) {
+    return this.eventsService.getEventById(+id);
   }
 
   @Post()

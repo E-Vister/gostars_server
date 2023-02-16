@@ -90,7 +90,6 @@ export class MatchesService {
           logo:
             parsedMatch.event.logo ||
             'https://www.hltv.org/img/static/team/placeholder.svg',
-          live: 'https://player.twitch.tv/?channel=esl_csgo&parent=localhost',
         },
         meta: parsedMatch.meta,
         status: parsedMatch.matchStatus,
@@ -294,7 +293,7 @@ export class MatchesService {
       (team) => team.name === team2Name,
     );
 
-    const { name: eventName, logo: eventLogo, live } = match.event;
+    const { name: eventName, logo: eventLogo, id: eventId } = match.event;
 
     const score = await this.scoreService.getScoreById(match.scoreId);
     const { team1Score, team2Score, firstPick } = score;
@@ -327,7 +326,7 @@ export class MatchesService {
       matchEvent: {
         name: eventName,
         logo: eventLogo,
-        live,
+        id: eventId,
       },
       meta,
       status,

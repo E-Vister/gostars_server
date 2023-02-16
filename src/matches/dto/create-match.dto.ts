@@ -1,9 +1,9 @@
 import { CreateTeamDto } from '../../teams/dto/create-team.dto';
-import { CreateEventDto } from '../../events/dto/create-event.dto';
 import { CreateScoreDto } from '../../scores/dto/create-score.dto';
 
 export class CreateMatchDto {
   readonly id: number;
+
   readonly date: Date;
 
   readonly team1: CreateTeamDto;
@@ -14,7 +14,7 @@ export class CreateMatchDto {
 
   readonly picks: string[];
 
-  readonly matchEvent: CreateEventDto;
+  readonly matchEvent: { id: number; name: string; logo: string };
 
   readonly matchType: string;
 
