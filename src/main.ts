@@ -16,7 +16,7 @@ async function bootstrap() {
     .setDescription(
       `Server for 'gostars'(gitlab.12devs.com/training/2023_trainee/bausiuk_gostars_frontend)`,
     )
-    .setVersion(`1.0.0`)
+    .setVersion(`2.0.0`)
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
