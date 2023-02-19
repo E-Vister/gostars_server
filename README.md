@@ -1,8 +1,10 @@
 <h1 align="center">
-  GoStars Server
+  NestJS GoStars Server
 </h1>
 
 <p align="center">
+  <a href="#about">About</a>
+  •
   <a href="#installation">Installation</a>
   •
   <a href="#running_the_app">Running the app</a>
@@ -13,6 +15,13 @@
   •
   <a href="#license">License</a>
 </p>
+
+About
+-----------
+[gostars_server](https://gitlab.12devs.com/training/2023_trainee/bausiuk_gostars_backend) is built using NestJS, a
+powerful Node.js framework for building scalable and efficient server-side
+applications. It provides endpoints for managing teams, events, and matches for use in
+a [gostars](https://gitlab.12devs.com/training/2023_trainee/bausiuk_gostars_frontend) app.
 
 Installation
 -----------
@@ -52,8 +61,3 @@ All documentation you can find on the endpoint `'/api/docs/'`.
 Contacts
 --------
 If you want to contact the author, please send an e-mail via visterovegor@gmail.com
-
-License
------------
-
-Nest is [MIT licensed](LICENSE).
