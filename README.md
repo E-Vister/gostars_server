@@ -21,7 +21,10 @@ About
 [gostars_server](https://gitlab.12devs.com/training/2023_trainee/bausiuk_gostars_backend) is built using NestJS, a
 powerful Node.js framework for building scalable and efficient server-side
 applications. It provides endpoints for managing teams, events, and matches for use in
-a [gostars](https://gitlab.12devs.com/training/2023_trainee/bausiuk_gostars_frontend) app.
+a [gostars](https://gitlab.12devs.com/training/2023_trainee/gostars_frontend) app. In addition, this server uses a
+modified npm module to obtain data from external APIs by parsing the information received and transforming it into the
+necessary format for use in the application. This allows for efficient and flexible data processing, making it easier to
+keep the application up-to-date with the latest information.
 
 Installation
 -----------
