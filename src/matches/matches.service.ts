@@ -8,9 +8,12 @@ import { ScoresService } from '../scores/scores.service';
 import HLTV from 'hltv-api19028309';
 import { HttpService } from '@nestjs/axios';
 import { MapsService } from '../maps/maps.service';
+import { CreateMapDto } from '../maps/dto/create-map.dto';
 
 @Injectable()
 export class MatchesService {
+  private readonly MAX_MATCHES = 50;
+
   constructor(
     @InjectModel(Match) private matchesRepository: typeof Match,
     private readonly httpService: HttpService,
@@ -33,106 +36,118 @@ export class MatchesService {
   }
 
   async getMatchById(matchId: string) {
-    let match = await this.matchesRepository.findOne({
+    const match = await this.matchesRepository.findOne({
       where: { id: matchId },
       include: { all: true },
     });
 
-    if (match === null) {
-      const parsedMatch = await HLTV.getMatchById(Number(matchId));
-
-      const dto: CreateMatchDto = {
-        id: parsedMatch.id,
-        date: new Date(Date.parse(parsedMatch.time)),
-        team1: parsedMatch.team1,
-        team2: parsedMatch.team2,
-        score: {
-          main: parsedMatch.score.main,
-          maps: parsedMatch.score.maps.map((m) => {
-            return {
-              team1: {
-                totalScore: m.team1.totalScore,
-                tSideScore:
-                  m.team1.first.side === 't'
-                    ? m.team1.first.rounds
-                    : m.team1.second.rounds,
-                ctSideScore:
-                  m.team1.first.side === 'ct'
-                    ? m.team1.first.rounds
-                    : m.team1.second.rounds,
-              },
-              team2: {
-                totalScore: m.team2.totalScore,
-                tSideScore:
-                  m.team2.first.side === 't'
-                    ? m.team2.first.rounds
-                    : m.team2.second.rounds,
-                ctSideScore:
-                  m.team2.first.side === 'ct'
-                    ? m.team2.first.rounds
-                    : m.team2.second.rounds,
-              },
-              name: m.name,
-              pickedBy:
-                m.pickedBy === 'decider'
-                  ? 'decider'
-                  : m.pickedBy === parsedMatch.team1.name
-                  ? 'team1'
-                  : 'team2',
-              number: m.number,
-            };
-          }),
-          firstPick: parsedMatch.score.firstPick,
-        },
-        matchEvent: {
-          id: +parsedMatch.event.id,
-          name: parsedMatch.event.name,
-          logo:
-            parsedMatch.event.logo ||
-            'https://www.hltv.org/img/static/team/placeholder.svg',
-        },
-        meta: parsedMatch.meta,
-        status: parsedMatch.matchStatus,
-        matchType: parsedMatch.matchType,
-        picks: parsedMatch.picks,
-        stream: parsedMatch.stream,
-      };
-
-      await this.createMatch(dto);
-
-      match = await this.matchesRepository.findOne({
-        where: { id: matchId },
-        include: { all: true },
-      });
+    if (match) {
+      return await this.matchResponse(match);
     }
 
-    return await this.matchResponse(match);
+    const {
+      event: { id: eventId, logo, name },
+      id,
+      matchStatus,
+      matchType,
+      meta,
+      picks,
+      score: { firstPick, main, maps: parsedMaps },
+      stream,
+      team1,
+      team2,
+      time,
+    } = await HLTV.getMatchById(Number(matchId));
+
+    const maps: CreateMapDto[] = parsedMaps.map((m) => {
+      const team1First = m.team1.first;
+      const team1Second = m.team1.second;
+      const team2First = m.team2.first;
+      const team2Second = m.team2.second;
+      const team1TSideScore =
+        team1First.side === 't' ? team1First.rounds : team1Second.rounds;
+      const team1CTSideScore =
+        team1First.side === 'ct' ? team1First.rounds : team1Second.rounds;
+      const team2TSideScore =
+        team2First.side === 't' ? team2First.rounds : team2Second.rounds;
+      const team2CTSideScore =
+        team2First.side === 'ct' ? team2First.rounds : team2Second.rounds;
+
+      return {
+        team1: {
+          totalScore: m.team1.totalScore,
+          tSideScore: team1TSideScore,
+          ctSideScore: team1CTSideScore,
+        },
+        team2: {
+          totalScore: m.team2.totalScore,
+          tSideScore: team2TSideScore,
+          ctSideScore: team2CTSideScore,
+        },
+        name: m.name,
+        pickedBy:
+          m.pickedBy === 'decider'
+            ? 'decider'
+            : m.pickedBy === team1.name
+            ? 'team1'
+            : 'team2',
+        number: m.number,
+      };
+    });
+
+    const dto: CreateMatchDto = {
+      id,
+      date: new Date(Date.parse(time)),
+      team1,
+      team2,
+      score: {
+        main,
+        maps,
+        firstPick,
+      },
+      matchEvent: {
+        id: +eventId,
+        name,
+        logo: logo || 'https://www.hltv.org/img/static/team/placeholder.svg',
+      },
+      meta,
+      status: matchStatus,
+      matchType,
+      picks,
+      stream,
+    };
+
+    const newMatch = await this.createMatch(dto);
+
+    return await this.matchResponse(newMatch as Match);
   }
 
   async createMatch(dto: CreateMatchDto) {
-    const match = await this.matchesRepository.create({
-      ...dto,
-      team1Name: dto.team1.name,
-      team2Name: dto.team2.name,
-    });
+    const { name: team1Name } = dto.team1;
+    const { name: team2Name } = dto.team2;
 
-    const team1 = await this.teamsService.cacheTeam(dto.team1);
+    const [team1, team2, event, score] = await Promise.all([
+      this.teamsService.cacheTeam(dto.team1),
+      this.teamsService.cacheTeam(dto.team2),
+      this.eventsService.cacheEvent(dto.matchEvent),
+      this.scoreService.cacheScore(dto.score),
+    ]);
 
-    const team2 = await this.teamsService.cacheTeam(dto.team2);
-
-    const event = await this.eventsService.cacheEvent(dto.matchEvent);
-
-    const score = await this.scoreService.cacheScore(dto.score);
-
-    if (match && event && team1 && team2 && score) {
-      await match.$set('teams', [team1.id, team2.id]);
-      await match.$set('event', event.id);
-      await match.$set('score', score.id);
-
-      return match;
-    } else {
+    if (!team1 || !team2 || !event || !score) {
       return { error: 'Some properties are missing' };
     }
+
+    const match = await this.matchesRepository.create({
+      ...dto,
+      team1Name,
+      team2Name,
+    });
+
+    await match.$set('teams', [team1.id, team2.id]);
+    await match.$set('event', event.id);
+    await match.$set('score', score.id);
+
+    return match;
   }
 
   async removeMatchById(matchId: string) {
@@ -156,22 +171,21 @@ export class MatchesService {
   }
 
   async getEndedMatches(offset: number) {
-    const results = await HLTV.getResults(offset);
-
-    const matchesId = results.map((result) => result.matchId);
-
-    const dbMatchesId = await this.matchesRepository
-      .findAll({
+    const [results, dbMatches] = await Promise.all([
+      HLTV.getResults(offset),
+      this.matchesRepository.findAll({
         attributes: ['id'],
-      })
-      .then((res) => res.map((match) => match.id));
+      }),
+    ]);
 
-    const responseResults = [];
+    const matchesIds = results.map((match) => match.matchId);
+    const dbMatchesIds = dbMatches.map((match) => match.id);
+    const endedMatches = [];
 
-    for (const matchId of matchesId) {
-      let result, dbResult;
+    for (const matchId of matchesIds.slice(0, this.MAX_MATCHES)) {
+      let dbResult;
 
-      if (dbMatchesId.includes(matchId)) {
+      if (dbMatchesIds.includes(matchId)) {
         dbResult = await this.matchesRepository.findOne({
           where: { id: matchId },
           include: { all: true },
@@ -182,7 +196,7 @@ export class MatchesService {
         const { date, team1, team2, matchEvent, matchType, score, id, meta } =
           await this.matchResponse(dbResult);
 
-        responseResults.push({
+        endedMatches.push({
           date,
           team1,
           team2,
@@ -194,53 +208,57 @@ export class MatchesService {
         });
       } else {
         await this.removeMatchById(matchId.toString());
-        const matchIndex = matchesId.indexOf(matchId);
-        result = results[matchIndex];
+        const matchIndex = matchesIds.indexOf(matchId);
+        const {
+          team1,
+          team2,
+          event,
+          meta,
+          matchId: resultMatchId,
+          time,
+        } = results[matchIndex];
 
-        responseResults.push({
-          date: result.time,
+        endedMatches.push({
+          date: time,
           team1: {
-            name: result.team1.name,
-            logo: result.team1.logo,
+            name: team1.name,
+            logo: team1.logo,
           },
           team2: {
-            name: result.team2.name,
-            logo: result.team2.logo,
+            name: team2.name,
+            logo: team2.logo,
           },
-          matchEvent: result.event,
+          matchEvent: event,
           matchType: '',
           score: {
             main: {
-              team1: result.team1.result,
-              team2: result.team2.result,
+              team1: team1.result,
+              team2: team2.result,
             },
             maps: [],
           },
-          meta: result.meta,
-          id: result.matchId,
+          meta: meta,
+          id: resultMatchId,
         });
       }
     }
 
-    return responseResults;
+    return endedMatches;
   }
 
   async getUpcomingMatches() {
-    const matches = await HLTV.getMatches();
-
-    const matchesId = matches.map((match) => match.id);
-    const dbMatchesId = await this.matchesRepository
-      .findAll({
+    const [matches, dbMatches] = await Promise.all([
+      HLTV.getMatches(),
+      this.matchesRepository.findAll({
         attributes: ['id'],
-      })
-      .then((res) => res.map((match) => match.id));
+      }),
+    ]);
+    const matchesIds = matches.map((match) => match.id);
+    const dbMatchesIds = dbMatches.map((match) => match.id);
+    const upcomingMatches = [];
 
-    const responseUpcoming = [];
-
-    for (const matchId of matchesId) {
-      let match;
-
-      if (dbMatchesId.includes(matchId)) {
+    for (const matchId of matchesIds.slice(0, this.MAX_MATCHES)) {
+      if (dbMatchesIds.includes(matchId)) {
         const dbMatch = await this.matchesRepository.findOne({
           where: { id: matchId },
           include: { all: true },
@@ -249,7 +267,7 @@ export class MatchesService {
         const { date, team1, team2, matchEvent, matchType, id, meta } =
           await this.matchResponse(dbMatch);
 
-        responseUpcoming.push({
+        upcomingMatches.push({
           date,
           team1,
           team2,
@@ -259,31 +277,25 @@ export class MatchesService {
           id,
         });
       } else {
-        const matchIndex = matchesId.indexOf(matchId);
-        match = matches[matchIndex];
+        const matchIndex = matchesIds.indexOf(matchId);
+        const { team1, team2, event, maps, id, time } = matches[matchIndex];
 
-        responseUpcoming.push({
-          date: match.time,
-          team1: {
-            name: match.team1.name,
-            logo: match.team1.logo,
-          },
-          team2: {
-            name: match.team2.name,
-            logo: match.team2.logo,
-          },
-          matchEvent: match.event,
+        upcomingMatches.push({
+          date: time,
+          team1,
+          team2,
+          matchEvent: event,
           matchType: '',
-          meta: match.maps,
-          id: match.id,
+          meta: maps,
+          id,
         });
       }
     }
 
-    return responseUpcoming;
+    return upcomingMatches;
   }
 
-  async matchResponse(match) {
+  async matchResponse(match: Match) {
     const {
       id,
       date,
@@ -294,18 +306,15 @@ export class MatchesService {
       team1Name,
       team2Name,
       stream,
+      teams,
+      event,
+      scoreId,
     } = match;
 
-    const { logo: team1Logo, country: team1Country } = match.teams.find(
-      (team) => team.name === team1Name,
-    );
-    const { logo: team2Logo, country: team2Country } = match.teams.find(
-      (team) => team.name === team2Name,
-    );
+    const team1 = teams.find((team) => team.name === team1Name);
+    const team2 = teams.find((team) => team.name === team2Name);
 
-    const { name: eventName, logo: eventLogo, id: eventId } = match.event;
-
-    const score = await this.scoreService.getScoreById(match.scoreId);
+    const score = await this.scoreService.getScoreById(scoreId);
     const { team1Score, team2Score, firstPick } = score;
 
     const maps = await this.mapsService.responseMaps(score.maps);
@@ -315,13 +324,13 @@ export class MatchesService {
       date,
       team1: {
         name: team1Name,
-        logo: team1Logo,
-        country: team1Country,
+        logo: team1.logo,
+        country: team1.country,
       },
       team2: {
         name: team2Name,
-        logo: team2Logo,
-        country: team2Country,
+        logo: team2.logo,
+        country: team2.country,
       },
       score: {
         main: {
@@ -334,9 +343,9 @@ export class MatchesService {
       picks,
       matchType,
       matchEvent: {
-        name: eventName,
-        logo: eventLogo,
-        id: eventId,
+        name: event.name,
+        logo: event.logo,
+        id: event.id,
       },
       meta,
       status,

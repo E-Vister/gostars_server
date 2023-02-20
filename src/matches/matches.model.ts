@@ -11,7 +11,7 @@ import { Team } from '../teams/teams.model';
 import { Event } from '../events/events.model';
 import { MatchTeams } from '../teams/match-teams.model';
 import { Score } from '../scores/scores.model';
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 interface MatchCreationAttrs {
   id: number;
@@ -22,7 +22,6 @@ interface MatchCreationAttrs {
   matchType: string;
   meta: string;
   status: string;
-
   stream: string;
 }
 
@@ -31,7 +30,7 @@ export class Match extends Model<Match, MatchCreationAttrs> {
   @ApiProperty({
     example: '23582',
     required: true,
-    description: 'ID of the match',
+    description: 'Unique identifier for the match',
   })
   @Column({
     type: DataType.INTEGER,
@@ -43,7 +42,7 @@ export class Match extends Model<Match, MatchCreationAttrs> {
   @ApiProperty({
     example: '2023-02-07T19:45:00.000Z',
     required: true,
-    description: 'Date of the match',
+    description: 'Date and time of the match in UTC format',
   })
   @Column({
     type: DataType.DATE,
@@ -89,7 +88,7 @@ export class Match extends Model<Match, MatchCreationAttrs> {
   @ApiProperty({
     example: 'G2',
     required: true,
-    description: 'Name of the first team of the match',
+    description: 'The name of the first team of the match',
   })
   @Column({
     type: DataType.STRING,
@@ -100,7 +99,7 @@ export class Match extends Model<Match, MatchCreationAttrs> {
   @ApiProperty({
     example: 'Natus Vincere',
     required: true,
-    description: 'Name of the second team of the match',
+    description: 'The name of the second team of the match',
   })
   @Column({
     type: DataType.STRING,
@@ -112,7 +111,8 @@ export class Match extends Model<Match, MatchCreationAttrs> {
     example:
       '["Vertigo","Overpass","Inferno","Nuke","Anubis","Ancient","Mirage"]',
     required: true,
-    description: 'Map picks of the match',
+    description:
+      'Array containing the names of the maps that were picked for the match',
   })
   @Column({
     type: DataType.ARRAY(DataType.STRING),
@@ -123,7 +123,7 @@ export class Match extends Model<Match, MatchCreationAttrs> {
   @ApiProperty({
     example: 'LAN',
     required: true,
-    description: 'The venue of the match. Online or in the arena',
+    description: 'Type of the match (e.g. LAN, online)',
   })
   @Column({
     type: DataType.STRING,
@@ -134,7 +134,7 @@ export class Match extends Model<Match, MatchCreationAttrs> {
   @ApiProperty({
     example: 'bo3',
     required: true,
-    description: 'Type of match duration',
+    description: 'Type of match duration (e.g. bo1, bo3)',
   })
   @Column({
     type: DataType.STRING,
@@ -145,7 +145,7 @@ export class Match extends Model<Match, MatchCreationAttrs> {
   @ApiProperty({
     example: 'ended',
     required: true,
-    description: 'Match completion status',
+    description: 'Current status of the match (e.g. upcoming, ended)',
   })
   @Column({
     type: DataType.STRING,
@@ -157,7 +157,7 @@ export class Match extends Model<Match, MatchCreationAttrs> {
     example:
       'https://player.twitch.tv/?video=v1730848951&autoplay=true&t=9h15m43s&parent=',
     required: true,
-    description: 'Link to an embedded match record or live broadcast',
+    description: 'URL to the match record or live broadcast',
   })
   @Column({
     type: DataType.STRING,

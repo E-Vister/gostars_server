@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Score } from './scores.model';
 import { MapsService } from '../maps/maps.service';
 import { CreateScoreDto } from './dto/create-score.dto';
+import { CreateMapDto } from "../maps/dto/create-map.dto";
 
 @Injectable()
 export class ScoresService {

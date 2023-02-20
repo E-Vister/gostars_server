@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Query,
 } from '@nestjs/common';
@@ -14,6 +16,7 @@ import {
   ApiQuery,
   ApiResponse,
   ApiTags,
+  ApiCreatedResponse,
 } from '@nestjs/swagger';
 import { Match } from './matches.model';
 import { CreateMatchDto } from './dto/create-match.dto';
@@ -26,8 +29,12 @@ export class MatchesController {
   @ApiOperation({ summary: 'Get matches list' })
   @ApiResponse({ status: 200, type: [Match] })
   @Get()
-  getAll() {
-    return this.matchesService.getAll();
+  async getAll() {
+    try {
+      return await this.matchesService.getAll();
+    } catch (err) {
+      throw err;
+    }
   }
 
   @ApiOperation({ summary: 'Get only ended matches' })
@@ -36,17 +43,31 @@ export class MatchesController {
     name: 'offset',
     required: false,
     description: 'offset in the results list',
+    schema: {
+      type: 'integer',
+      default: 0,
+    },
   })
   @Get('/results')
-  getEndedMatches(@Query('offset') offset: number) {
-    return this.matchesService.getEndedMatches(offset || 0);
+  async getEndedMatches(
+    @Query('offset', ParseIntPipe) offset = 0,
+  ): Promise<CreateMatchDto[]> {
+    try {
+      return await this.matchesService.getEndedMatches(offset);
+    } catch (err) {
+      throw err;
+    }
   }
 
   @ApiOperation({ summary: 'Get only upcoming matches' })
   @ApiResponse({ status: 200, type: [Match] })
   @Get('/upcoming')
-  getUpcomingMatches() {
-    return this.matchesService.getUpcomingMatches();
+  async getUpcomingMatches(): Promise<CreateMatchDto[]> {
+    try {
+      return await this.matchesService.getUpcomingMatches();
+    } catch (err) {
+      throw err;
+    }
   }
 
   @ApiOperation({ summary: 'Get match by id' })
@@ -55,28 +76,57 @@ export class MatchesController {
     name: 'matchId',
     required: true,
     description: 'Match identifier',
+    schema: {
+      type: 'string',
+    },
   })
   @Get(':matchId')
-  getMatchById(@Param('matchId') matchId: string) {
-    return this.matchesService.getMatchById(matchId);
+  async getMatchById(@Param('matchId') matchId: string) {
+    try {
+      return await this.matchesService.getMatchById(matchId);
+    } catch (err) {
+      throw err;
+    }
   }
 
   @ApiOperation({ summary: 'Create match' })
-  @ApiResponse({ status: 200, type: Match })
+  @ApiCreatedResponse({
+    description: 'The match has been successfully created.',
+    type: Match,
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @Post()
-  create(@Body() matchDto: CreateMatchDto) {
-    return this.matchesService.createMatch(matchDto);
+  async create(
+    @Body() createMatchDto: CreateMatchDto,
+  ): Promise<Match | { error: string }> {
+    try {
+      if (!createMatchDto) {
+        throw new BadRequestException('Missing required fields.');
+      }
+      return this.matchesService.createMatch(createMatchDto);
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 
   @ApiOperation({ summary: 'Delete match by id' })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 204 })
   @ApiParam({
     name: 'matchId',
     required: true,
     description: 'Match identifier',
+    schema: {
+      type: 'string',
+    },
   })
   @Delete(':matchId')
-  removeMatchById(@Param('matchId') matchId: string) {
-    return this.matchesService.removeMatchById(matchId);
+  async removeMatchById(
+    @Param('matchId') matchId: string,
+  ): Promise<{ code: number }> {
+    try {
+      return await this.matchesService.removeMatchById(matchId);
+    } catch (err) {
+      throw err;
+    }
   }
 }

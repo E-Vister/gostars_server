@@ -6,32 +6,34 @@ export class CreateMatchDto {
   @ApiProperty({
     example: '23582',
     required: true,
-    description: 'Id of the match',
+    description: 'Unique identifier for the match',
   })
   readonly id: number;
 
   @ApiProperty({
     example: '2023-02-07T19:45:00.000Z',
     required: true,
-    description: 'Date of the match',
+    description: 'Date and time of the match in UTC format',
   })
   readonly date: Date;
 
   @ApiProperty({
     required: true,
-    description: 'The left (first) team of the match',
+    description:
+      'Object containing information about the first(left) team in the match',
   })
   readonly team1: CreateTeamDto;
 
   @ApiProperty({
     required: true,
-    description: 'The right (second) team of the match',
+    description:
+      'Object containing information about the second(right) team in the match',
   })
   readonly team2: CreateTeamDto;
 
   @ApiProperty({
     required: true,
-    description: 'Detailed score of the match',
+    description: 'Object containing information about the score of the match',
   })
   readonly score: CreateScoreDto;
 
@@ -39,7 +41,8 @@ export class CreateMatchDto {
     example:
       '["Vertigo","Overpass","Inferno","Nuke","Anubis","Ancient","Mirage"]',
     required: true,
-    description: 'Map picks of the match',
+    description:
+      'Array containing the names of the maps that were picked for the match',
   })
   readonly picks: string[];
 
@@ -48,7 +51,7 @@ export class CreateMatchDto {
       id: {
         type: 'number',
         example: '6809',
-        description: 'ID of the event',
+        description: 'Unique identifier for the event',
       },
       name: {
         type: 'string',
@@ -58,32 +61,33 @@ export class CreateMatchDto {
       logo: {
         type: 'string',
         example: 'https://i.imgur.com/9pq9MA4.png',
-        description: 'String link to the logo of the event',
+        description: 'URL to the logo of the event',
       },
     },
     required: true,
-    description: 'Event related to the match',
+    description:
+      'Object containing information about the event in which the match was played',
   })
   readonly matchEvent: { id: number; name: string; logo: string };
 
   @ApiProperty({
     example: 'LAN',
     required: true,
-    description: 'The venue of the match. Online or in the arena',
+    description: 'Type of the match (e.g. LAN, online)',
   })
   readonly matchType: string;
 
   @ApiProperty({
     example: 'bo3',
     required: true,
-    description: 'Type of match duration',
+    description: 'Type of match duration (e.g. bo1, bo3)',
   })
   readonly meta: string;
 
   @ApiProperty({
     example: 'ended',
     required: true,
-    description: 'Match completion status',
+    description: 'Current status of the match (e.g. upcoming, ended)',
   })
   readonly status: string;
 
@@ -91,7 +95,7 @@ export class CreateMatchDto {
     example:
       'https://player.twitch.tv/?video=v1730848951&autoplay=true&t=9h15m43s&parent=',
     required: true,
-    description: 'Link to an embedded match record or live broadcast',
+    description: 'URL to the match record or live broadcast',
   })
   readonly stream: string;
 }
