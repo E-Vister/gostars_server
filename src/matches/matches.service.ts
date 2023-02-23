@@ -117,7 +117,11 @@ export class MatchesService {
       stream,
     };
 
-    const newMatch = await this.createMatch(dto);
+    await this.createMatch(dto);
+    const newMatch = await this.matchesRepository.findOne({
+      where: { id: dto.id },
+      include: { all: true },
+    });
 
     return await this.matchResponse(newMatch as Match);
   }

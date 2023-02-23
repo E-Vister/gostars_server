@@ -18,7 +18,7 @@ export class EventsController {
   @ApiOperation({ summary: 'Get all events' })
   @ApiResponse({ status: 200, type: [Event] })
   @Get()
-  getAll() {
+  getAll(): Promise<Event[]> {
     return this.eventsService.getAll();
   }
 
@@ -30,7 +30,7 @@ export class EventsController {
     description: 'Event identifier',
   })
   @Get(':id')
-  getEventById(@Param('id') id: string) {
+  getEventById(@Param('id') id: string): Promise<CreateEventDto> {
     return this.eventsService.getEventById(+id);
   }
 
@@ -38,7 +38,7 @@ export class EventsController {
   @ApiResponse({ status: 200, type: Event })
   @ApiBody({ type: CreateEventDto })
   @Post()
-  create(@Body() eventDto: CreateEventDto) {
+  create(@Body() eventDto: CreateEventDto): Promise<Event> {
     return this.eventsService.createEvent(eventDto);
   }
 }

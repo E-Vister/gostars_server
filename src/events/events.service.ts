@@ -91,6 +91,7 @@ export class EventsService {
     const event = await this.eventsRepository.findOne({
       where: { id: dto.id },
     });
+
     if (event === null) {
       const {
         id: eventId,

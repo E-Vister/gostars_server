@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { TeamsService } from './teams.service';
 import { Team } from './teams.model';
 import { CreateTeamDto } from './dto/create-team.dto';
@@ -17,14 +17,14 @@ export class TeamsController {
     description: 'Team name',
   })
   @Get(':name')
-  getByName(@Param('name') name: string) {
+  getByName(@Param('name') name: string): Promise<CreateTeamDto> {
     return this.teamsService.getTeamByName(name);
   }
 
   @ApiOperation({ summary: 'Create team' })
   @ApiResponse({ status: 200, type: Team })
   @Post()
-  create(@Body() teamDto: CreateTeamDto) {
+  create(@Body() teamDto: CreateTeamDto): Promise<Team> {
     return this.teamsService.createTeam(teamDto);
   }
 }

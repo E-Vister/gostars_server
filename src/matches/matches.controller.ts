@@ -27,7 +27,7 @@ export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
   @ApiOperation({ summary: 'Get matches list' })
-  @ApiResponse({ status: 200, type: [Match] })
+  @ApiResponse({ status: 200, type: [CreateMatchDto] })
   @Get()
   async getAll() {
     try {
@@ -38,7 +38,7 @@ export class MatchesController {
   }
 
   @ApiOperation({ summary: 'Get only ended matches' })
-  @ApiResponse({ status: 200, type: [Match] })
+  @ApiResponse({ status: 200, type: [CreateMatchDto] })
   @ApiQuery({
     name: 'offset',
     required: false,
@@ -71,7 +71,7 @@ export class MatchesController {
   }
 
   @ApiOperation({ summary: 'Get match by id' })
-  @ApiResponse({ status: 200, type: Match })
+  @ApiResponse({ status: 200, type: CreateMatchDto })
   @ApiParam({
     name: 'matchId',
     required: true,
@@ -92,7 +92,7 @@ export class MatchesController {
   @ApiOperation({ summary: 'Create match' })
   @ApiCreatedResponse({
     description: 'The match has been successfully created.',
-    type: Match,
+    type: CreateMatchDto,
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @Post()
