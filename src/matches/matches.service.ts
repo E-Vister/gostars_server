@@ -5,10 +5,11 @@ import { CreateMatchDto } from './dto/create-match.dto';
 import { TeamsService } from '../teams/teams.service';
 import { EventsService } from '../events/events.service';
 import { ScoresService } from '../scores/scores.service';
-import HLTV from 'hltv-api19028309';
 import { HttpService } from '@nestjs/axios';
 import { MapsService } from '../maps/maps.service';
 import { CreateMapDto } from '../maps/dto/create-map.dto';
+import HLTV from 'hltv-api19028309';
+import { HLTV as HL } from 'hltv-go';
 
 @Injectable()
 export class MatchesService {
@@ -252,7 +253,7 @@ export class MatchesService {
 
   async getUpcomingMatches() {
     const [matches, dbMatches] = await Promise.all([
-      HLTV.getMatches(),
+      HL.getMatches(),
       this.matchesRepository.findAll({
         attributes: ['id'],
       }),
@@ -282,15 +283,18 @@ export class MatchesService {
         });
       } else {
         const matchIndex = matchesIds.indexOf(matchId);
-        const { team1, team2, event, maps, id, time } = matches[matchIndex];
+        const { team1, team2, event, format, id, date, live, title } =
+          matches[matchIndex];
 
         upcomingMatches.push({
-          date: time,
+          date: new Date(date) || undefined,
           team1,
           team2,
           matchEvent: event,
           matchType: '',
-          meta: maps,
+          meta: format,
+          live,
+          title,
           id,
         });
       }
@@ -353,6 +357,8 @@ export class MatchesService {
       },
       meta,
       status,
+      title: undefined,
+      live: false,
       stream,
     };
   }
