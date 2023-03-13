@@ -32,9 +32,9 @@ Installation
 - Open the terminal and run the following commands
 
 ```bash
-$ git clone https://gitlab.12devs.com/training/2023_trainee/bausiuk_gostars_backend.git
+$ git clone https://github.com/E-Vister/gostars_server.git
 
-$ cd bausiuk_gostars_backend
+$ cd gostars_server
 
 $ yarn install
 ```
